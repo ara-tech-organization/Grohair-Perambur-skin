@@ -1,8 +1,8 @@
 import {
-  Sparkles, Scissors, Wind, UserRound, Layers, TrendingDown, ScanLine, ScanFace,
-  HeartHandshake, MapPin, Stethoscope, CalendarCheck, Lightbulb, Route,
-  FlaskConical, Sprout, Syringe, Zap, Crown, CircleDot, UserCheck,
-  ClipboardList, Target, Droplets,
+  Sparkles, Wind, Layers, ScanLine, ScanFace, Stethoscope, CalendarCheck,
+  Lightbulb, Route, FlaskConical, Syringe, Zap, CircleDot, UserCheck, ClipboardList,
+  Target, Droplets, Star, Users, BadgePercent, ShieldCheck, Sun, Activity, Search,
+  Clock, HeartPulse,
 } from 'lucide-react'
 
 // Perambur clinic details (Google Business listing + adgrohair.com/Contact)
@@ -18,99 +18,141 @@ export const ADDRESS_LINES = [
 ]
 export const MAPS_URL =
   'https://www.google.com/maps/search/?api=1&query=Advanced+GroHair+%26+GloSkin+Clinic+Perambur+244+Paper+Mills+Road+Chennai'
+// TODO: replace with the clinic's Google Business Profile reviews link
+export const GOOGLE_REVIEWS_URL = MAPS_URL
 
 export const nav = [
-  { href: '#concerns', label: 'Concerns' },
   { href: '#treatments', label: 'Treatments' },
+  { href: '#reviews', label: 'Reviews' },
   { href: '#why-us', label: 'Why Us' },
-  { href: '#process', label: 'Process' },
+  { href: '#process', label: 'How to Book' },
   { href: '#faq', label: 'FAQ' },
 ]
 
+export const treatmentOptions = [
+  'Laser Hair Removal', 'Acne Scar Treatment', 'Chemical Peel Treatment',
+  'HydraFacial', 'Skin Rejuvenation', 'Glutathione IV Treatment',
+]
+
+// Hero trust highlights
 export const trust = [
-  { icon: Sprout, text: 'Hair Fall & Hair Regrowth Treatment' },
-  { icon: Scissors, text: 'GFC & Hair Transplant Options' },
-  { icon: ScanLine, text: 'Hair & Scalp Assessment, with costs explained upfront' },
-  { icon: MapPin, text: 'Paper Mills Road, Perambur' },
+  { icon: Star, text: '4.7 Google Rating | 250+ Reviews' },
+  { icon: Users, text: '1,000+ Happy Clients | 0% EMI Available' },
 ]
 
-export const concernOptions = [
-  'Hair Fall', 'Hair Thinning', 'Baldness', 'Hair Transplant',
-  'GFC Treatment', 'Other Hair Concerns',
-]
-
-export const concerns = [
-  { icon: TrendingDown, title: 'Hair Fall', text: 'Experiencing increased hair shedding? Explore suitable hair fall treatment options following a hair and scalp assessment.' },
-  { icon: Wind, title: 'Hair Thinning', text: 'Concerned about reduced hair density or thinning hair? Understand available hair regrowth and hair restoration approaches.' },
-  { icon: UserRound, title: 'Baldness', text: 'Noticing visible bald patches or a receding hairline? Explore suitable hair restoration options based on your condition.' },
-  { icon: ScanFace, title: 'Receding Hairline', text: 'Concerned about changes around your forehead or hairline? Discuss available approaches to hairline restoration.' },
-  { icon: Layers, title: 'Low Hair Density', text: 'Looking for ways to improve the appearance of hair density? Explore treatment options based on your individual requirements.' },
-]
-
+// Overview cards + one detail section per treatment (anchor = id)
 export const treatments = [
-  { icon: FlaskConical, title: 'GFC Hair Treatment', text: "Growth Factor Concentrate (GFC) is a hair treatment option that uses growth factor components derived from the patient's blood. It may be considered for selected hair thinning and hair loss concerns.", cta: 'Know More About GFC' },
-  { icon: Sprout, title: 'Hair Regrowth Treatment', text: 'Hair regrowth approaches may be considered for certain types of hair thinning and hair loss. Treatment selection depends on the underlying cause and individual assessment.', cta: 'Explore Hair Regrowth Options' },
-  { icon: Scissors, title: 'Hair Transplant', text: 'Hair transplant is a surgical hair restoration procedure that involves transferring hair follicles from a donor area to selected areas of hair loss. A consultation helps determine suitability, donor availability and treatment expectations.', cta: 'Book Hair Transplant Consultation' },
-  { icon: Syringe, title: 'Advanced PRP Hair Treatment', text: "PRP is a hair treatment option that uses platelet-rich plasma prepared from the patient's blood. Its suitability depends on the individual's hair loss condition and assessment.", cta: 'Discuss PRP Treatment' },
-  { icon: Zap, title: 'Oxygen Laser Hair Treatment', text: 'Explore scalp-focused treatment options designed to complement selected hair care and restoration approaches.', cta: 'Explore Treatment Options' },
-  { icon: Crown, title: 'Cosmetic Hair System', text: 'For individuals looking for a non-surgical option to improve the appearance of hair coverage, cosmetic hair systems may be discussed during consultation.', cta: 'Enquire About Hair Systems' },
+  { id: 'laser-hair-removal', icon: Zap, title: 'Laser Hair Removal', text: 'For individuals looking for long-term hair reduction.' },
+  { id: 'acne-scar', icon: ScanFace, title: 'Acne Scar Treatment', text: 'Explore suitable options for different types of acne scars.' },
+  { id: 'chemical-peel', icon: FlaskConical, title: 'Chemical Peel Treatment', text: 'Treatment options for selected pigmentation, skin tone and texture concerns.' },
+  { id: 'hydrafacial', icon: Droplets, title: 'HydraFacial', text: 'A facial treatment focused on cleansing, exfoliation and hydration.' },
+  { id: 'skin-rejuvenation', icon: Sparkles, title: 'Skin Rejuvenation', text: 'Explore aesthetic treatment options based on your skin concerns.' },
+  { id: 'glutathione-iv', icon: Syringe, title: 'Glutathione IV Treatment', text: 'Understand the procedure, suitability and medical considerations.' },
 ]
+
+export const treatmentSections = [
+  {
+    id: 'laser-hair-removal',
+    title: 'Laser Hair Removal in Perambur',
+    intro: 'Looking for a solution to reduce unwanted hair? Explore laser hair reduction options for selected body areas.',
+    listTitle: 'Treatment Areas',
+    list: ['Face', 'Underarms', 'Arms', 'Legs', 'Back', 'Full Body'],
+    listIcons: [ScanFace, Wind, Activity, Activity, Layers, UserCheck],
+    understand: ['Skin and hair assessment', 'Suitable treatment areas', 'Expected sessions', 'Pre- and post-treatment care'],
+    understandIcons: [ScanLine, Target, CalendarCheck, ClipboardList],
+    cta: 'Book Laser Hair Removal Consultation',
+  },
+  {
+    id: 'acne-scar',
+    title: 'Acne Scar Treatment in Perambur',
+    intro: 'Acne scars can vary in type and depth. A consultation helps identify suitable treatment options based on your skin condition.',
+    listTitle: 'Common Acne Scar Types',
+    list: ['Atrophic acne scars', 'Ice pick scars', 'Boxcar scars', 'Rolling scars', 'Uneven skin texture'],
+    listIcons: [CircleDot, CircleDot, CircleDot, Wind, Layers],
+    understand: ['Acne scar assessment', 'Suitable treatment options', 'Treatment planning', 'Expected outcomes and limitations'],
+    understandIcons: [Search, UserCheck, ClipboardList, Target],
+    cta: 'Book Acne Scar Consultation',
+  },
+  {
+    id: 'chemical-peel',
+    title: 'Chemical Peel Treatment in Perambur',
+    intro: 'Explore chemical peel options based on your skin type and concerns.',
+    listTitle: 'May Be Considered For',
+    list: ['Uneven skin tone', 'Selected pigmentation concerns', 'Dull-looking skin', 'Uneven skin texture', 'Certain types of acne concerns'],
+    listIcons: [Layers, Sun, Sparkles, Wind, CircleDot],
+    understand: ['Skin type assessment', 'Suitable peel selection', 'Number of sessions, if required', 'Aftercare guidance'],
+    understandIcons: [ScanLine, FlaskConical, CalendarCheck, ClipboardList],
+    cta: 'Book Chemical Peel Consultation',
+  },
+  {
+    id: 'hydrafacial',
+    title: 'HydraFacial Treatment in Perambur',
+    intro: 'Explore a facial treatment designed around cleansing, exfoliation and hydration.',
+    listTitle: 'Treatment Focus',
+    list: ['Deep cleansing', 'Exfoliation', 'Hydration', 'Skin refreshment'],
+    listIcons: [Droplets, Layers, Droplets, Sparkles],
+    understand: ['Skin assessment', 'Treatment suitability', 'Procedure details', 'Recommended care'],
+    understandIcons: [ScanLine, UserCheck, ClipboardList, HeartPulse],
+    cta: 'Book HydraFacial Consultation',
+  },
+  {
+    id: 'skin-rejuvenation',
+    title: 'Skin Rejuvenation Treatments in Perambur',
+    intro: 'Explore aesthetic treatment options based on your skin concerns and individual requirements.',
+    listTitle: 'Common Concerns',
+    list: ['Uneven skin texture', 'Dull-looking skin', 'Fine lines', 'Selected pigmentation concerns', 'Visible signs of ageing'],
+    listIcons: [Layers, Sparkles, Wind, Sun, Clock],
+    understand: ['Skin condition assessment', 'Suitable treatment options', 'Personalised treatment planning', 'Expected outcomes and limitations'],
+    understandIcons: [ScanLine, UserCheck, ClipboardList, Target],
+    cta: 'Book Skin Rejuvenation Consultation',
+  },
+  {
+    id: 'glutathione-iv',
+    title: 'Glutathione IV Treatment in Perambur',
+    intro: 'Considering Glutathione IV treatment? Understand the procedure, suitability and important medical considerations before making a decision.',
+    understand: [
+      'Medical history and suitability assessment',
+      'Explanation of the IV procedure',
+      'Potential risks and side effects',
+      'Treatment considerations and limitations',
+      'Guidance from a qualified medical professional',
+    ],
+    understandIcons: [Stethoscope, Syringe, ShieldCheck, Target, UserCheck],
+    note: 'Glutathione IV treatment may not be suitable for everyone. The procedure should only be considered following an appropriate medical assessment. Benefits should not be assumed or guaranteed.',
+    cta: 'Book Glutathione IV Consultation',
+  },
+]
+
+// Local trust
+export const stats = [
+  { icon: Star, value: '4.7', label: 'Google Rating', text: 'Based on 250+ Google Reviews.' },
+  { icon: Users, value: '1,000+', label: 'Happy Clients', text: 'Trusted by clients for their aesthetic treatment needs.' },
+  { icon: BadgePercent, value: '0%', label: 'EMI Available', text: 'Flexible payment option for eligible treatments, subject to applicable terms.' },
+]
+
+// Genuine Google Business Profile reviews only (3 to display), e.g.
+//   { name: 'Customer name', rating: 5, text: 'Original review text', date: 'March 2026' }
+export const reviews = []
 
 export const whyUs = [
-  'Consultation-led treatment recommendations',
-  'Multiple hair restoration options',
-  'Individualised approach to hair concerns',
-  'Treatment options explained before proceeding',
-  'Convenient Perambur, Chennai location',
-  'Appointment-based consultation',
+  'Multiple aesthetic treatment options',
+  'Individual skin assessment',
+  'Treatment planning based on suitability',
+  'Guidance on procedures and aftercare',
+  'Professional consultation',
 ]
 
-export const transplantData = {
-  title: 'Considering Hair Transplant in Chennai?',
-  intro: 'Hair transplant may be considered for individuals experiencing certain types of hair loss.',
-  concerns: ['Receding Hairline', 'Pattern Baldness', 'Visible Bald Patches', 'Reduced Hair Density', 'Advanced Hair Loss'],
-  understand: ['Hair transplant procedure', 'Donor area suitability', 'Hairline restoration options', 'Treatment planning', 'Expected outcomes and limitations'],
-  cta: 'Book Hair Transplant Consultation',
-  badge: Scissors,
-  concernIcons: [ScanFace, UserRound, CircleDot, Layers, TrendingDown],
-  understandIcons: [Scissors, UserCheck, ScanFace, ClipboardList, Target],
-}
-
-export const gfcData = {
-  title: 'Exploring GFC Treatment in Chennai?',
-  intro: 'GFC (Growth Factor Concentrate) may be considered for selected hair thinning and hair loss concerns.',
-  concerns: ['Hair Thinning', 'Reduced Hair Density', 'Certain Types of Hair Loss', 'Weakening Hair Growth'],
-  understand: ['How GFC treatment works', 'Your suitability for GFC', 'Treatment procedure', 'Recommended sessions, if applicable', 'Expected outcomes and limitations'],
-  cta: 'Book GFC Consultation',
-  badge: Droplets,
-  concernIcons: [Wind, Layers, TrendingDown, Sprout],
-  understandIcons: [FlaskConical, UserCheck, Syringe, CalendarCheck, Target],
-}
-
 export const steps = [
-  { icon: CalendarCheck, title: 'Book Your Appointment', text: 'Submit your details through the enquiry form or contact our clinic.' },
-  { icon: Stethoscope, title: 'Hair & Scalp Assessment', text: 'Discuss your hair concerns and undergo an appropriate assessment.' },
-  { icon: Lightbulb, title: 'Understand Your Options', text: 'Explore suitable treatment or hair restoration options.' },
-  { icon: Route, title: 'Plan Your Next Step', text: 'Proceed with a treatment plan based on professional recommendations and your preferences.' },
+  { icon: ClipboardList, title: 'Select Your Treatment', text: 'Choose the treatment you are interested in.' },
+  { icon: UserCheck, title: 'Share Your Details', text: 'Submit your name and mobile number.' },
+  { icon: Lightbulb, title: 'Get a Call Back', text: 'Our team will contact you to coordinate your appointment.' },
+  { icon: Route, title: 'Visit the Clinic', text: 'Discuss suitable options during your consultation.' },
 ]
 
 export const faqs = [
-  ['Where can I get hair treatment in Perambur, Chennai?', 'Advanced GroHair in Perambur offers consultation for hair fall, hair thinning, hair regrowth and hair restoration enquiries.'],
-  ['What is the best treatment for hair fall?', 'Hair fall can have different causes. The appropriate approach depends on the underlying reason, hair condition and individual assessment.'],
-  ['Is GFC treatment suitable for hair thinning?', 'GFC may be considered for selected hair thinning concerns. Suitability and expected outcomes should be discussed during consultation.'],
-  ['How do I know whether I need a hair transplant?', 'Hair transplant suitability depends on the pattern of hair loss, donor hair availability and other individual factors. A consultation helps assess whether it may be appropriate.'],
-  ['Where can I enquire about hair transplant in Chennai?', 'You can book a hair transplant consultation at Advanced GroHair, Perambur, Chennai, to discuss suitability and available options.'],
-  ['Can I book a hair consultation online?', 'Yes. Submit the enquiry form on this page with your name, mobile number and hair concern to request an appointment.'],
-  ['How much does hair treatment cost in Chennai?', 'Hair treatment costs depend on the type of treatment, individual requirements and recommended sessions. Contact our clinic for details after consultation.'],
-  ['How can I book an appointment at Advanced GroHair Perambur?', 'Fill out the consultation form or use the Call Now button to connect with our team.'],
+  ['Which skin treatments are available at Perambur?', 'Laser hair removal, acne scar treatment, chemical peels, HydraFacial, skin rejuvenation and Glutathione IV treatment are among the available options. Confirm current availability with the clinic.'],
+  ['Is a consultation required before treatment?', 'Yes. A consultation helps assess suitability and understand the procedure, potential risks and expected outcomes.'],
+  ['How many sessions will I need?', 'The number of sessions varies depending on the treatment, skin condition and individual response.'],
+  ['Is Glutathione IV treatment suitable for everyone?', 'No. Suitability requires an appropriate medical assessment. Potential risks and limitations should be discussed with a qualified medical professional.'],
+  ['Where is Advanced GroHair & GloSkin located?', `Visit our Perambur clinic for a consultation: ${ADDRESS}.`],
 ]
-
-// ---------------------------------------------------------------------------
-// Before / After results  (add real patient photos and consent-cleared cases)
-//   Put images in /public/results/ and list them here, e.g.
-//   { before: 'results/case1-before.jpg', after: 'results/case1-after.jpg', label: 'Hair transplant - 8 months' }
-export const results = []
-
-// Patient reviews (add genuine reviews only)
-//   { name: 'Name', concern: 'Hair Fall', rating: 5, text: 'Review text' }
-export const reviews = []

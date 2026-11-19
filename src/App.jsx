@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import {
-  Phone, ArrowRight, ChevronDown, CheckCircle2, Navigation, CalendarDays,
-  Menu, X, Loader2, Send, MapPin, Search, Stethoscope, Sparkles, Layers,
+  Phone, ArrowRight, ChevronDown, CheckCircle2, CalendarDays,
+  Menu, X, Loader2, Send, MapPin, Stethoscope, Layers,
   UserCheck, ClipboardList, CalendarCheck, Mail, Check, Star, Quote,
-  MoveHorizontal, ScanFace, Sprout, Scissors,
+  Info,
 } from 'lucide-react'
 import logo from './assets/logo.png'
 import {
-  PHONE, PHONE_DISPLAY, EMAIL, ADDRESS_LINES, MAPS_URL, nav, trust, concernOptions, concerns,
-  treatments, whyUs, transplantData, gfcData, steps, faqs, results, reviews,
+  PHONE, PHONE_DISPLAY, EMAIL, ADDRESS_LINES, MAPS_URL, GOOGLE_REVIEWS_URL, nav, trust,
+  treatmentOptions, treatments, treatmentSections, stats, whyUs, steps, faqs, reviews,
 } from './content'
 
 /* ---------- helpers ---------- */
@@ -135,7 +135,7 @@ function Dropdown({ id, value, onChange, options, placeholder = 'Select' }) {
 
 /* ---------- lead form ---------- */
 function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
-  const [vals, setVals] = useState({ name: '', mobile: '', concern: '', date: '' })
+  const [vals, setVals] = useState({ name: '', mobile: '', treatment: '', date: '' })
   const [errs, setErrs] = useState({})
   const [state, setState] = useState('idle')
 
@@ -143,10 +143,10 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
 
   const validate = () => {
     const e = {}
-    if (vals.name.trim().length < 2) e.name = 'Please enter your full name'
+    if (vals.name.trim().length < 2) e.name = 'Please enter your name'
     if (!/^[6-9]\d{9}$/.test(vals.mobile.replace(/\s|-/g, '').replace(/^(\+91|0)/, '')))
       e.mobile = 'Enter a valid 10-digit mobile number'
-    if (!vals.concern) e.concern = 'Please select your hair concern'
+    if (!vals.treatment) e.treatment = 'Please select a treatment'
     return e
   }
 
@@ -175,8 +175,8 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
           {heading && <h3>{heading}</h3>}
           {text && <p className="lead-sub">{text}</p>}
           <div className={`field ${errs.name ? 'bad' : ''}`}>
-            <label htmlFor={`${id}-name`}>Full Name</label>
-            <input id={`${id}-name`} value={vals.name} onChange={set('name')} autoComplete="name" placeholder="Enter your full name" />
+            <label htmlFor={`${id}-name`}>Name</label>
+            <input id={`${id}-name`} value={vals.name} onChange={set('name')} autoComplete="name" placeholder="Enter your name" />
             {errs.name && <small>{errs.name}</small>}
           </div>
           <div className={`field ${errs.mobile ? 'bad' : ''}`}>
@@ -184,10 +184,10 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
             <input id={`${id}-mobile`} type="tel" inputMode="numeric" value={vals.mobile} onChange={set('mobile')} autoComplete="tel" placeholder="10-digit mobile number" />
             {errs.mobile && <small>{errs.mobile}</small>}
           </div>
-          <div className={`field ${errs.concern ? 'bad' : ''}`}>
-            <label htmlFor={`${id}-concern`}>{id === 'final-form' ? 'Hair Concern' : 'Select Your Hair Concern'}</label>
-            <Dropdown id={`${id}-concern`} value={vals.concern} onChange={(v) => setVals((x) => ({ ...x, concern: v }))} options={concernOptions} placeholder="Select your hair concern" />
-            {errs.concern && <small>{errs.concern}</small>}
+          <div className={`field ${errs.treatment ? 'bad' : ''}`}>
+            <label htmlFor={`${id}-treatment`}>Select Your Treatment</label>
+            <Dropdown id={`${id}-treatment`} value={vals.treatment} onChange={(v) => setVals((x) => ({ ...x, treatment: v }))} options={treatmentOptions} placeholder="Select your treatment" />
+            {errs.treatment && <small>{errs.treatment}</small>}
           </div>
           <div className="field">
             <label htmlFor={`${id}-date`}>Preferred Appointment Date{optionalDate ? ' (Optional)' : ''}</label>
@@ -206,8 +206,8 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
 
 /* ---------- scroll spy + deep links ---------- */
 const BASE = import.meta.env.BASE_URL // e.g. '/Grohair-Perambur-Land/'
-const SECTION_IDS = ['top', 'about', 'concerns', 'treatments', 'why-us', 'hair-transplant', 'gfc', 'process', 'location', 'results', 'faq', 'appointment']
-const NAV_OF = { 'hair-transplant': 'treatments', gfc: 'treatments' }
+const SECTION_IDS = ['top', 'treatments', ...treatmentSections.map((t) => t.id), 'reviews', 'why-us', 'process', 'faq', 'appointment']
+const NAV_OF = Object.fromEntries(treatmentSections.map((t) => [t.id, 'treatments']))
 
 function useScrollSpy() {
   const [active, setActive] = useState('top')
@@ -294,7 +294,7 @@ function Header() {
   return (
     <header className={`hdr ${scrolled ? 'scrolled' : ''}`}>
       <div className="wrap hdr-in">
-        <a href="#top" className="brand" aria-label="Advanced GroHair Perambur">
+        <a href="#top" className="brand" aria-label="Advanced GroHair &amp; GloSkin Perambur">
           <img src={logo} alt="Advanced GroHair and GloSkin" />
         </a>
         <nav className={`nav ${open ? 'open' : ''}`} aria-label="Primary">
@@ -330,82 +330,34 @@ function Hero() {
       <div className="blob b1" /><div className="blob b2" />
       <div className="wrap hero-grid">
         <div className="hero-copy">
-          <span className="eyebrow hero-label rise" style={{ '--d': '0ms' }}>
-            Hair Fall, Hair Loss &amp; Hair Transplant Clinic | Perambur, Chennai
-          </span>
           <h1 className="rise" style={{ '--d': '100ms' }}>
-            Hair Fall Treatment &amp; <em>Hair Transplant</em> in Chennai
+            Advanced <em>Skin Treatments</em> in Perambur, Chennai
           </h1>
           <p className="lead-p rise" style={{ '--d': '200ms' }}>
-            Advanced GroHair, Perambur offers hair fall treatment, GFC, hair regrowth therapy and hair transplant in Chennai. Get a scalp assessment and a treatment plan based on the cause of your hair loss.
+            Explore personalised aesthetic skin treatments with professional consultation and treatment planning.
           </p>
-          <ul className="chips">
+          <h2 className="hero-sub rise" style={{ '--d': '260ms' }}>Available Treatments</h2>
+          <ul className="tgrid">
+            {treatments.map(({ icon: Icon, title, id }, i) => (
+              <li key={id} className="rise" style={{ '--d': `${300 + i * 60}ms` }}>
+                <a href={`#${id}`}><Icon size={20} aria-hidden="true" /><span>{title}</span></a>
+              </li>
+            ))}
+          </ul>
+          <ul className="tbar">
             {trust.map(({ icon: Icon, text }, i) => (
-              <li key={text} className="rise" style={{ '--d': `${300 + i * 80}ms` }}>
+              <li key={text} className="rise" style={{ '--d': `${680 + i * 80}ms` }}>
                 <Icon size={18} aria-hidden="true" /><span>{text}</span>
               </li>
             ))}
           </ul>
-          <div className="rise" style={{ '--d': '650ms' }}>
-            <Cta href="#book">Book Your Hair Consultation</Cta>
+          <div className="rise" style={{ '--d': '1000ms' }}>
+            <Cta href="#book">Book Your Consultation</Cta>
           </div>
         </div>
         <div className="hero-form rise" style={{ '--d': '250ms' }} id="book">
-          <LeadForm
-            id="hero-form"
-            heading="Book Your Hair Consultation"
-            text="Share your hair concern and our team will help you schedule a consultation."
-            button="BOOK MY CONSULTATION"
-          />
+          <LeadForm id="hero-form" heading="Book Your Appointment" button="BOOK APPOINTMENT" optionalDate={false} />
         </div>
-      </div>
-    </section>
-  )
-}
-
-function Intro() {
-  const rows = [
-    { icon: Search, text: 'Hair fall, thinning hair and changes in hair density can have different underlying causes. Finding the right approach starts with understanding your hair and scalp condition.' },
-    { icon: Stethoscope, text: 'At Advanced GroHair, Perambur, we offer hair treatment and hair restoration options based on individual concerns and consultation findings.' },
-    { icon: Sparkles, text: 'Whether you are exploring hair fall treatment, hair regrowth options, GFC treatment or hair transplant, our team can help you understand the available options.' },
-  ]
-  return (
-    <section className="sec" id="about">
-      <div className="wrap">
-        <Reveal className="intro">
-          <div className="intro-l">
-            <h2>Looking for Hair Treatment in Perambur, Chennai?</h2>
-            <Cta href="#book" variant="light">Schedule Your Hair Consultation</Cta>
-          </div>
-          <ol className="intro-r">
-            {rows.map(({ icon: Icon, text }, i) => (
-              <Reveal as="li" key={i} delay={150 + i * 120}>
-                <span className="ic"><Icon size={24} aria-hidden="true" /></span>
-                <p>{text}</p>
-              </Reveal>
-            ))}
-          </ol>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
-function Concerns() {
-  return (
-    <section className="sec tint" id="concerns">
-      <div className="wrap">
-        <SectionHead center title="Find the Right Approach for Your Hair Concern" />
-        <div className="grid g3">
-          {concerns.map(({ icon: Icon, title, text }, i) => (
-            <Reveal key={title} delay={i * 80} className="card">
-              <span className="ic"><Icon size={26} aria-hidden="true" /></span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </Reveal>
-          ))}
-        </div>
-        <Reveal delay={200} className="center-cta"><Cta href="#book">Discuss Your Hair Concern</Cta></Reveal>
       </div>
     </section>
   )
@@ -415,14 +367,14 @@ function Treatments() {
   return (
     <section className="sec" id="treatments">
       <div className="wrap">
-        <SectionHead center title="Hair Treatment Options at Advanced GroHair" text="Explore different hair treatment and hair restoration options available at our Perambur clinic." />
+        <SectionHead center title="Choose Your Skin Treatment" text="Explore treatment options based on your individual skin concerns." />
         <div className="grid g3">
-          {treatments.map(({ icon: Icon, title, text, cta }, i) => (
-            <Reveal key={title} delay={(i % 3) * 90} className="card tcard">
+          {treatments.map(({ id, icon: Icon, title, text }, i) => (
+            <Reveal key={id} delay={(i % 3) * 90} className="card tcard">
               <span className="ic"><Icon size={26} aria-hidden="true" /></span>
               <h3>{title}</h3>
               <p>{text}</p>
-              <a href="#book" className="link">{cta}<ArrowRight size={16} aria-hidden="true" /></a>
+              <a href={`#${id}`} className="link">Explore Treatment<ArrowRight size={16} aria-hidden="true" /></a>
             </Reveal>
           ))}
         </div>
@@ -431,59 +383,39 @@ function Treatments() {
   )
 }
 
-function WhyUs() {
-  const icons = [Stethoscope, Layers, UserCheck, ClipboardList, MapPin, CalendarCheck]
+function Story({ data: d, tint, flip, index }) {
+  const Badge = treatments.find((t) => t.id === d.id)?.icon
   return (
-    <section className="sec why" id="why-us">
-      <div className="blob b3" /><div className="blob b2" />
-      <div className="wrap why-in">
-        <div className="why-l">
-          <SectionHead title="Why Choose Our Hair Clinic in Perambur, Chennai?" text="At Advanced GroHair, our approach begins with understanding your hair concerns and exploring appropriate treatment options." />
-          <Reveal delay={150}><Cta href="#book" variant="light">Book an Appointment</Cta></Reveal>
-        </div>
-        <ul className="why-grid">
-          {whyUs.map((t, i) => {
-            const Icon = icons[i]
-            return (
-              <Reveal as="li" key={t} delay={i * 80} className="why-card">
-                <span className="ic"><Icon size={24} aria-hidden="true" /></span>
-                <span>{t}</span>
-              </Reveal>
-            )
-          })}
-        </ul>
-      </div>
-    </section>
-  )
-}
-
-function Transplant() {
-  return <Story id="hair-transplant" tint data={transplantData} />
-}
-
-function Story({ id, data: d, tint }) {
-  return (
-    <section className={`sec gx ${tint ? 'gx-tint' : ''}`} id={id}>
+    <section className={`sec gx ${tint ? 'gx-tint' : ''} ${flip ? 'gx-flip' : ''}`} id={d.id}>
       <div className="blob b1" /><div className="blob b2" />
+      {Badge && <Badge className="gx-mark" size={260} strokeWidth={1} aria-hidden="true" />}
       <div className="wrap gx-grid">
         <Reveal className="gx-left">
+          <span className="gx-num">{String(index + 1).padStart(2, '0')}</span>
           <h2>{d.title}</h2>
           <p>{d.intro}</p>
-          <h3 className="gx-sub">Common Hair Concerns</h3>
-          <ul className="gx-chips">
-            {d.concerns.map((t, i) => {
-              const Icon = d.concernIcons[i]
-              return (
-                <Reveal as="li" key={t} delay={150 + i * 80}>
-                  <Icon size={18} aria-hidden="true" /><span>{t}</span>
-                </Reveal>
-              )
-            })}
-          </ul>
+          {d.list && (
+            <>
+              <h3 className="gx-sub">{d.listTitle}</h3>
+              <ul className="gx-chips gx-cards">
+                {d.list.map((t, i) => {
+                  const Icon = d.listIcons[i]
+                  return (
+                    <Reveal as="li" key={t} delay={150 + i * 80}>
+                      <Icon size={18} aria-hidden="true" /><span>{t}</span>
+                    </Reveal>
+                  )
+                })}
+              </ul>
+            </>
+          )}
+          {d.note && (
+            <p className="note" role="note"><Info size={20} aria-hidden="true" /><span><b>Important:</b> {d.note}</span></p>
+          )}
           <Cta href="#book">{d.cta}</Cta>
         </Reveal>
         <Reveal delay={150} className="gx-right">
-          <h3>During Consultation, Understand</h3>
+          <h3>During Your Consultation</h3>
           <ol className="gx-line">
             {d.understand.map((t, i) => {
               const Icon = d.understandIcons[i]
@@ -501,15 +433,83 @@ function Story({ id, data: d, tint }) {
   )
 }
 
-function Gfc() {
-  return <Story id="gfc" data={gfcData} />
+function Reviews() {
+  const dev = import.meta.env.DEV // empty review slots are only drawn while developing
+  const items = reviews.length ? reviews.slice(0, 3) : dev ? [0, 1, 2].map((i) => ({ placeholder: true, key: i })) : []
+  return (
+    <section className="sec tint" id="reviews">
+      <div className="wrap">
+        <SectionHead center title="Trusted by Clients for Their Skin Treatment Journey" />
+        <div className="tr3">
+          {stats.map(({ value, label, text }, i) => (
+            <Reveal key={label} delay={i * 90} className="tr3-card">
+              <b className="tr3-v">{value}{i === 0 && <Star size={30} fill="currentColor" aria-hidden="true" />}</b>
+              <h3>{label}</h3>
+              <p>{text}</p>
+            </Reveal>
+          ))}
+        </div>
+        {items.length > 0 && (
+          <>
+            <h3 className="rev-title">Google Reviews</h3>
+            <div className="grid g3">
+              {items.map((r, i) => (
+                <Reveal key={r.key ?? r.name} delay={i * 90} className="card review">
+                  {r.placeholder ? (
+                    <div className="slot"><Quote size={32} aria-hidden="true" /><span>Add 3 genuine Google reviews in content.js</span></div>
+                  ) : (
+                    <>
+                      <Quote className="rev-q" size={30} aria-hidden="true" />
+                      <div className="stars" aria-label={`${r.rating || 5} out of 5 stars`}>
+                        {Array.from({ length: r.rating || 5 }).map((_, k) => <Star key={k} size={18} fill="currentColor" aria-hidden="true" />)}
+                      </div>
+                      <p>{r.text}</p>
+                      <div className="rev-by"><b>{r.name}</b>{r.date && <span>{r.date}</span>}</div>
+                    </>
+                  )}
+                </Reveal>
+              ))}
+            </div>
+          </>
+        )}
+        <Reveal delay={200} className="center-cta">
+          <Cta href={GOOGLE_REVIEWS_URL} target="_blank" rel="noreferrer" icon={Star}>View Google Reviews</Cta>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+function WhyUs() {
+  const icons = [Layers, Stethoscope, ClipboardList, CalendarCheck, UserCheck]
+  return (
+    <section className="sec why4" id="why-us">
+      <div className="wrap">
+        <div className="why4-panel">
+          <div className="blob b3" />
+          <Reveal as="h2" className="why4-h">A Consultation-Led Approach to Skin Treatments</Reveal>
+          <ul className="why4-grid">
+            {whyUs.map((t, i) => {
+              const Icon = icons[i]
+              return (
+                <Reveal as="li" key={t} delay={i * 80} className="why4-item">
+                  <span className="why4-ic"><Icon size={24} aria-hidden="true" /></span>
+                  <span>{t}</span>
+                </Reveal>
+              )
+            })}
+          </ul>
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function Process() {
   return (
     <section className="sec" id="process">
       <div className="wrap">
-        <SectionHead center title="Your Hair Consultation Journey" />
+        <SectionHead center title="Book Your Skin Treatment Appointment" />
         <ol className="steps">
           {steps.map(({ icon: Icon, title, text }, i) => (
             <Reveal as="li" key={title} delay={i * 110} className="step">
@@ -519,32 +519,7 @@ function Process() {
             </Reveal>
           ))}
         </ol>
-      </div>
-    </section>
-  )
-}
-
-function Local() {
-  return (
-    <section className="sec tint" id="location">
-      <div className="wrap">
-        <Reveal className="loc">
-          <div className="loc-l">
-            <h2>Advanced GroHair – Hair Clinic in Perambur, Chennai</h2>
-            <p>Looking for a hair clinic in Perambur or exploring hair treatment options in Chennai?</p>
-            <p>Advanced GroHair provides consultation for hair fall, hair thinning, hair regrowth, GFC treatment and hair transplant enquiries.</p>
-            <p>Visit our Perambur clinic to discuss your hair concerns and understand available treatment options.</p>
-            <div className="btn-row">
-              <Cta href={MAPS_URL} target="_blank" rel="noreferrer" icon={Navigation}>Get Directions</Cta>
-              <Cta href="#book" variant="ghost">Book Your Consultation</Cta>
-            </div>
-          </div>
-          <div className="loc-r" aria-hidden="true">
-            <span className="ring r1" /><span className="ring r2" /><span className="ring r3" />
-            <span className="loc-pin"><MapPin size={44} /></span>
-            <span className="loc-label">Perambur, Chennai</span>
-          </div>
-        </Reveal>
+        <Reveal delay={200} className="center-cta"><Cta href="#book">Book Your Appointment</Cta></Reveal>
       </div>
     </section>
   )
@@ -552,17 +527,16 @@ function Local() {
 
 function Faq() {
   const [open, setOpen] = useState(0)
-  const half = Math.ceil(faqs.length / 2)
-  const columns = [faqs.slice(0, half), faqs.slice(half)]
+  const columns = [faqs]
   return (
-    <section className="sec" id="faq">
+    <section className="sec tint" id="faq">
       <div className="wrap">
         <SectionHead center title="Frequently Asked Questions" />
         <div className="faq">
           {columns.map((col, c) => (
             <div className="faq-col" key={c}>
               {col.map(([q, a], j) => {
-                const i = c * half + j
+                const i = j
                 return (
                   <Reveal key={q} delay={j * 70} className={`qa ${open === i ? 'open' : ''}`}>
                     <h3>
@@ -589,104 +563,15 @@ function Final() {
       <div className="blob b3" />
       <div className="wrap hero-grid">
         <Reveal className="final-copy">
-          <h2>Take the First Step Towards Understanding Your Hair Concerns</h2>
-          <p>Explore personalised hair treatment and hair restoration options at Advanced GroHair, Perambur.</p>
-          <p><strong>Book your hair consultation today.</strong></p>
+          <h2>Ready to Explore Your Skin Treatment Options?</h2>
+          <p>Book an appointment at Advanced GroHair &amp; GloSkin, Perambur.</p>
           <div className="btn-row">
-            <Cta href="#final-form" variant="light" icon={CalendarDays}>BOOK MY CONSULTATION</Cta>
-            <a href={`tel:${PHONE}`} className="btn btn-ghost"><Phone size={18} aria-hidden="true" /><span>CALL NOW</span></a>
+            <Cta href="#final-form" variant="light" icon={CalendarDays}>BOOK YOUR CONSULTATION</Cta>
           </div>
         </Reveal>
         <Reveal delay={150}>
-          <LeadForm id="final-form" heading="" button="REQUEST AN APPOINTMENT" optionalDate={false} />
+          <LeadForm id="final-form" heading="" button="BOOK APPOINTMENT" optionalDate={false} />
         </Reveal>
-      </div>
-    </section>
-  )
-}
-
-/* ---------- before / after + reviews ---------- */
-const SHOW_PLACEHOLDERS = import.meta.env.DEV // empty slots are only drawn while developing
-
-function CompareSlider({ before, after, label }) {
-  const [pos, setPos] = useState(50)
-  const base = import.meta.env.BASE_URL
-  return (
-    <figure className="cmp" style={{ '--pos': `${pos}%` }}>
-      <div className="cmp-box">
-        <img src={base + after} alt={`${label || 'Result'} - after`} loading="lazy" />
-        <img className="cmp-before" src={base + before} alt={`${label || 'Result'} - before`} loading="lazy" />
-        <span className="cmp-tag b">Before</span>
-        <span className="cmp-tag a">After</span>
-        <span className="cmp-line" aria-hidden="true"><span className="cmp-knob"><MoveHorizontal size={18} /></span></span>
-        <input type="range" min="0" max="100" value={pos} onChange={(e) => setPos(+e.target.value)} aria-label="Drag to compare before and after" />
-      </div>
-      {label && <figcaption>{label}</figcaption>}
-    </figure>
-  )
-}
-
-function Proof() {
-  const hasBA = results.length > 0
-  const hasRev = reviews.length > 0
-  const dev = SHOW_PLACEHOLDERS
-  const [tab, setTab] = useState('ba')
-  if (!hasBA && !hasRev && !dev) return null
-
-  const showBA = hasBA || dev
-  const showRev = hasRev || dev
-  const active = showBA && showRev ? tab : showBA ? 'ba' : 'rev'
-
-  const baSlots = [
-    { key: 0, icon: ScanFace, title: 'Hairline restoration' },
-    { key: 1, icon: Sprout, title: 'Hair regrowth' },
-    { key: 2, icon: Scissors, title: 'Hair transplant' },
-  ]
-  const baItems = hasBA ? results : baSlots.map((x) => ({ ...x, placeholder: true }))
-  const revItems = hasRev ? reviews : [0, 1, 2].map((i) => ({ placeholder: true, key: i }))
-
-  return (
-    <section className="sec tint" id="results">
-      <div className="wrap">
-        <SectionHead center title="Patient Results & Reviews" text="Results vary from person to person. Suitability and outcomes are assessed during consultation." />
-        {showBA && showRev && (
-          <Reveal className="tabs" role="tablist" aria-label="Results or reviews">
-            <button role="tab" aria-selected={active === 'ba'} className={active === 'ba' ? 'on' : ''} onClick={() => setTab('ba')}>Before &amp; After</button>
-            <button role="tab" aria-selected={active === 'rev'} className={active === 'rev' ? 'on' : ''} onClick={() => setTab('rev')}>What Our Patients Say</button>
-          </Reveal>
-        )}
-        {active === 'ba' ? (
-          <div className="cmp-grid" key="ba">
-            {baItems.map((r, i) => (
-              <Reveal key={r.key ?? r.before} delay={i * 100}>
-                {r.placeholder ? (
-                  <div className="slot"><r.icon size={36} aria-hidden="true" /><b>{r.title}</b><span>Add before / after photos in content.js</span></div>
-                ) : (
-                  <CompareSlider {...r} />
-                )}
-              </Reveal>
-            ))}
-          </div>
-        ) : (
-          <div className="grid g3" key="rev">
-            {revItems.map((r, i) => (
-              <Reveal key={r.key ?? r.name} delay={(i % 3) * 90} className="card review">
-                {r.placeholder ? (
-                  <div className="slot"><Quote size={32} aria-hidden="true" /><span>Add genuine patient reviews in content.js</span></div>
-                ) : (
-                  <>
-                    <Quote className="rev-q" size={30} aria-hidden="true" />
-                    <div className="stars" aria-label={`${r.rating || 5} out of 5 stars`}>
-                      {Array.from({ length: r.rating || 5 }).map((_, k) => <Star key={k} size={18} fill="currentColor" aria-hidden="true" />)}
-                    </div>
-                    <p>{r.text}</p>
-                    <div className="rev-by"><b>{r.name}</b>{r.concern && <span>{r.concern}</span>}</div>
-                  </>
-                )}
-              </Reveal>
-            ))}
-          </div>
-        )}
       </div>
     </section>
   )
@@ -713,7 +598,7 @@ function Footer() {
           <div>
             <h4 className="ftr-h">Treatments</h4>
             <ul>
-              {treatments.map((t) => <li key={t.title}><a href="#treatments">{t.title}</a></li>)}
+              {treatments.map((t) => <li key={t.id}><a href={`#${t.id}`}>{t.title}</a></li>)}
             </ul>
           </div>
           <div>
@@ -726,7 +611,7 @@ function Footer() {
           </div>
         </div>
         <div className="ftr-bar">
-          <small>© {year} Advanced GroHair, Perambur. All rights reserved.</small>
+          <small>© {year} Advanced GroHair &amp; GloSkin, Perambur. All rights reserved.</small>
         </div>
       </div>
     </footer>
@@ -748,15 +633,11 @@ export default function App() {
       <Header />
       <main>
         <Hero />
-        <Intro />
-        <Concerns />
         <Treatments />
+        {treatmentSections.map((t, i) => <Story key={t.id} data={t} index={i} tint={i % 2 === 0} flip={i % 2 === 1} />)}
+        <Reviews />
         <WhyUs />
-        <Transplant />
-        <Gfc />
         <Process />
-        <Local />
-        <Proof />
         <Faq />
         <Final />
       </main>
