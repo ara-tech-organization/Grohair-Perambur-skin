@@ -1,0 +1,9 @@
+# Single-page app under /skin/: send unknown paths (e.g. /skin/thankyou) to index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /skin/
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /skin/index.html [L]
+</IfModule>

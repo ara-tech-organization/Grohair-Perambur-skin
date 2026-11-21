@@ -42,11 +42,30 @@ function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest 
   )
 }
 
-// Stub: wire to the CMS / API endpoint.
-async function submitLead(data) {
-  await new Promise((r) => setTimeout(r, 900))
-  console.info('Lead submitted', data)
-  return true
+// Lead submission -> https://adgrohairperambur.com/api/email.php (emails the clinic and adds a sheet row)
+const LEAD_API = 'https://adgrohairperambur.com/api/email.php'
+const LEAD_SOURCES = {
+  'hero-form': 'Skin - Hero Form',
+  'popup-form': 'Skin - Popup Form',
+  'final-form': 'Skin - Final Form',
+}
+
+async function submitLead(v, formId) {
+  const digits = v.mobile.replace(/\D/g, '').replace(/^(91|0)(?=\d{10}$)/, '')
+  const payload = {
+    name: v.name.trim(),
+    phone: `+91${digits}`, // same format as the hair page; stored as 91XXXXXXXXXX in the sheet
+    area: v.area.trim(),
+    concern: v.treatment,
+    date: v.date || '',
+    source: LEAD_SOURCES[formId] || 'Skin Landing Page',
+  }
+  try {
+    const res = await fetch(LEAD_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    return (await res.json()).success === true
+  } catch {
+    return false
+  }
 }
 
 function Cta({ href = '#book', children, variant = 'primary', icon: Icon = ArrowRight, ...rest }) {
@@ -157,8 +176,12 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
     setErrs(e)
     if (Object.keys(e).length) return
     setState('loading')
-    await submitLead(vals)
-    setState('done')
+    const sent = await submitLead(vals, id)
+    if (sent) {
+      window.location.assign(BASE + 'thankyou') // /thankyou page (also usable as the ads conversion page)
+      return
+    }
+    setState('error')
   }
 
   const today = new Date().toISOString().split('T')[0]
@@ -199,6 +222,7 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
             <label htmlFor={`${id}-date`}>Preferred Appointment Date{optionalDate ? ' (Optional)' : ''}</label>
             <input id={`${id}-date`} type="date" min={today} value={vals.date} onChange={set('date')} />
           </div>
+          {state === 'error' && <p className="lead-err" role="alert">We could not send your request. Please try again or call us on {PHONE_DISPLAY}.</p>}
           <button className="btn btn-primary btn-block" type="submit" disabled={state === 'loading'}>
             {state === 'loading' ? <Loader2 size={18} className="spin" aria-hidden="true" /> : <Send size={18} aria-hidden="true" />}
             <span>{state === 'loading' ? 'SENDING' : button}</span>
@@ -782,7 +806,38 @@ function Popups() {
   )
 }
 
+/* ---------- /thankyou page ---------- */
+function ThankYou() {
+  useEffect(() => {
+    document.title = 'Thank You | Advanced GroHair & GloSkin Perambur'
+    const m = document.createElement('meta')
+    m.name = 'robots'
+    m.content = 'noindex'
+    document.head.appendChild(m)
+    window.scrollTo(0, 0)
+    return () => m.remove()
+  }, [])
+  return (
+    <main className="thanks">
+      <div className="blob b1" /><div className="blob b2" />
+      <div className="thanks-card">
+        <a href={BASE} className="brand" aria-label="Advanced GroHair & GloSkin Perambur"><img src={logo} alt="Advanced GroHair and GloSkin" /></a>
+        <CheckCircle2 className="thanks-ic" size={64} aria-hidden="true" />
+        <h1>Thank You</h1>
+        <p>Your request has been received. Our team will contact you shortly to schedule your consultation.</p>
+        <div className="thanks-act">
+          <a href={`tel:${PHONE}`} className="btn btn-primary"><Phone size={18} aria-hidden="true" /><span>Call Now</span></a>
+          <a href={BASE} className="btn btn-ghost-dark"><ArrowRight size={18} aria-hidden="true" /><span>Back to Home</span></a>
+        </div>
+      </div>
+    </main>
+  )
+}
+
 export default function App() {
+  const trim = (p) => p.replace(/\/+$/, '')
+  const isThanks = trim(window.location.pathname) === trim(BASE + 'thankyou')
+  if (isThanks) return <ThankYou />
   return (
     <>
       <Header />
