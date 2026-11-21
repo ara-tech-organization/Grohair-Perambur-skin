@@ -344,16 +344,21 @@ function Hero() {
           </p>
           <h2 className="hero-sub rise" style={{ '--d': '260ms' }}>Available Treatments</h2>
           <ul className="tgrid">
-            {treatments.map(({ title, id }, i) => (
-              <li key={id} className="rise" style={{ '--d': `${300 + i * 60}ms` }}>
-                <a href={`#${id}`}><i className="dot" aria-hidden="true" /><span>{title}</span></a>
+            {treatments.map(({ icon: Icon, title, id }, i) => (
+              <li key={id} className="rise" style={{ '--d': `${400 + i * 60}ms` }}>
+                <a href={`#${id}`}>
+                  <span className="tg-ic"><Icon size={18} aria-hidden="true" /></span>
+                  <span className="tg-t">{title}</span>
+                  <ArrowRight className="tg-ar" size={16} aria-hidden="true" />
+                </a>
               </li>
             ))}
           </ul>
-          <ul className="tbar">
-            {trust.map(({ text }, i) => (
-              <li key={text} className="rise" style={{ '--d': `${680 + i * 80}ms` }}>
-                <i className="dot" aria-hidden="true" /><span>{text}</span>
+          <ul className="kpis">
+            {trust.map(({ value, label, star }, i) => (
+              <li key={label} className="rise" style={{ '--d': `${240 + i * 80}ms` }}>
+                <b>{value}{star && <Star size={22} fill="currentColor" aria-hidden="true" />}</b>
+                <span>{label}</span>
               </li>
             ))}
           </ul>
@@ -687,6 +692,96 @@ function StickyBar() {
   )
 }
 
+/* ---------- pop ups: appointment form + call ---------- */
+const CALL_AFTER_MS = 2000 // call pop up appears this long after the form pop up is closed
+const AUTO_OPEN_MS = 3000 // form pop up opens this long after every page load / refresh; 0 disables
+
+function Modal({ onClose, label, children }) {
+  const box = useRef(null)
+  useEffect(() => {
+    const prev = document.activeElement
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', onKey)
+    document.body.style.overflow = 'hidden'
+    box.current?.querySelector('input, button, a')?.focus()
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.style.overflow = ''
+      prev?.focus?.()
+    }
+  }, [onClose])
+  return (
+    <div className="modal" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="modal-box" role="dialog" aria-modal="true" aria-label={label} ref={box}>
+        <button type="button" className="modal-x" onClick={onClose} aria-label="Close"><X size={22} /></button>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function CallPopup({ onBook }) {
+  return (
+    <div className="callpop">
+      <span className="callpop-ic"><Phone size={30} aria-hidden="true" /></span>
+      <span className="callpop-tag">Free Consultation</span>
+      <h3>Call Advanced GroHair &amp; GloSkin, Perambur</h3>
+      <p className="callpop-note">Your first consultation is free. Call us to book your appointment.</p>
+      <a href={`tel:${PHONE}`} data-direct className="callpop-num">{PHONE_DISPLAY}</a>
+      <div className="callpop-act">
+        <a href={`tel:${PHONE}`} data-direct className="btn btn-primary"><Phone size={18} aria-hidden="true" /><span>Call Now</span></a>
+        <button type="button" className="btn btn-ghost-dark" onClick={onBook}><CalendarDays size={18} aria-hidden="true" /><span>Book Online</span></button>
+      </div>
+    </div>
+  )
+}
+
+function Popups() {
+  const [modal, setModal] = useState(null) // 'form' | 'call' | null
+  const fromCall = useRef(false) // form was opened from the call pop up
+  const callTimer = useRef(null)
+  // closing the booking form shows the free-consultation call pop up CALL_AFTER_MS later
+  const close = () => {
+    const showCall = modal === 'form' && !fromCall.current
+    setModal(null)
+    fromCall.current = false
+    clearTimeout(callTimer.current)
+    if (showCall) callTimer.current = setTimeout(() => setModal((m) => m || 'call'), CALL_AFTER_MS)
+  }
+
+  useEffect(() => {
+    // capture phase, so booking / call links open a pop up instead of scrolling or dialling
+    const onClick = (e) => {
+      const a = e.target.closest && e.target.closest('a')
+      if (!a || a.hasAttribute('data-direct') || a.closest('.modal')) return
+      const href = a.getAttribute('href') || ''
+      if (href === '#book' || href === '#final-form') setModal('form')
+      else if (href.startsWith('tel:')) setModal('call')
+      else return
+      clearTimeout(callTimer.current)
+      e.preventDefault()
+      e.stopImmediatePropagation()
+    }
+    document.addEventListener('click', onClick, true)
+    return () => document.removeEventListener('click', onClick, true)
+  }, [])
+
+  useEffect(() => {
+    if (!AUTO_OPEN_MS) return
+    const t = setTimeout(() => setModal((m) => m || 'form'), AUTO_OPEN_MS)
+    return () => clearTimeout(t)
+  }, [])
+
+  if (!modal) return null
+  return (
+    <Modal onClose={close} label={modal === 'form' ? 'Book your appointment' : 'Call the clinic'}>
+      {modal === 'form'
+        ? <LeadForm id="popup-form" heading="Book Your Appointment" button="BOOK APPOINTMENT" optionalDate={false} />
+        : <CallPopup onBook={() => { fromCall.current = true; setModal('form') }} />}
+    </Modal>
+  )
+}
+
 export default function App() {
   return (
     <>
@@ -704,6 +799,7 @@ export default function App() {
       </main>
       <Footer />
       <StickyBar />
+      <Popups />
     </>
   )
 }

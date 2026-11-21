@@ -36,8 +36,9 @@ export const treatmentOptions = [
 
 // Hero trust highlights
 export const trust = [
-  { icon: Star, text: '4.7 Google Rating | 250+ Reviews' },
-  { icon: Users, text: '1,000+ Happy Clients | 0% EMI Available' },
+  { value: '4.7', label: 'Google Rating | 250+ Reviews', star: true },
+  { value: '1,000+', label: 'Happy Clients' },
+  { value: '0%', label: 'EMI Available' },
 ]
 
 // Overview cards + one detail section per treatment (anchor = id)
