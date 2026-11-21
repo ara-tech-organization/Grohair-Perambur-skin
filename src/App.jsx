@@ -135,7 +135,7 @@ function Dropdown({ id, value, onChange, options, placeholder = 'Select' }) {
 
 /* ---------- lead form ---------- */
 function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
-  const [vals, setVals] = useState({ name: '', mobile: '', treatment: '', date: '' })
+  const [vals, setVals] = useState({ name: '', mobile: '', area: '', treatment: '', date: '' })
   const [errs, setErrs] = useState({})
   const [state, setState] = useState('idle')
 
@@ -144,6 +144,7 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
   const validate = () => {
     const e = {}
     if (vals.name.trim().length < 2) e.name = 'Please enter your name'
+    if (vals.area.trim().length < 2) e.area = 'Please enter your area name'
     if (!/^[6-9]\d{9}$/.test(vals.mobile.replace(/\s|-/g, '').replace(/^(\+91|0)/, '')))
       e.mobile = 'Enter a valid 10-digit mobile number'
     if (!vals.treatment) e.treatment = 'Please select a treatment'
@@ -184,6 +185,11 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
             <input id={`${id}-mobile`} type="tel" inputMode="numeric" value={vals.mobile} onChange={set('mobile')} autoComplete="tel" placeholder="10-digit mobile number" />
             {errs.mobile && <small>{errs.mobile}</small>}
           </div>
+          <div className={`field ${errs.area ? 'bad' : ''}`}>
+            <label htmlFor={`${id}-area`}>Area Name</label>
+            <input id={`${id}-area`} value={vals.area} onChange={set('area')} autoComplete="address-level2" placeholder="Enter your area name" />
+            {errs.area && <small>{errs.area}</small>}
+          </div>
           <div className={`field ${errs.treatment ? 'bad' : ''}`}>
             <label htmlFor={`${id}-treatment`}>Select Your Treatment</label>
             <Dropdown id={`${id}-treatment`} value={vals.treatment} onChange={(v) => setVals((x) => ({ ...x, treatment: v }))} options={treatmentOptions} placeholder="Select your treatment" />
@@ -206,7 +212,7 @@ function LeadForm({ id, heading, text, button, dark, optionalDate = true }) {
 
 /* ---------- scroll spy + deep links ---------- */
 const BASE = import.meta.env.BASE_URL // e.g. '/Grohair-Perambur-Land/'
-const SECTION_IDS = ['top', 'treatments', ...treatmentSections.map((t) => t.id), 'reviews', 'why-us', 'process', 'faq', 'appointment']
+const SECTION_IDS = ['top', 'treatments', ...treatmentSections.map((t) => t.id), 'reviews', 'why-us', 'process', 'customer-reviews', 'faq', 'appointment']
 const NAV_OF = Object.fromEntries(treatmentSections.map((t) => [t.id, 'treatments']))
 
 function useScrollSpy() {
@@ -338,16 +344,16 @@ function Hero() {
           </p>
           <h2 className="hero-sub rise" style={{ '--d': '260ms' }}>Available Treatments</h2>
           <ul className="tgrid">
-            {treatments.map(({ icon: Icon, title, id }, i) => (
+            {treatments.map(({ title, id }, i) => (
               <li key={id} className="rise" style={{ '--d': `${300 + i * 60}ms` }}>
-                <a href={`#${id}`}><Icon size={20} aria-hidden="true" /><span>{title}</span></a>
+                <a href={`#${id}`}><i className="dot" aria-hidden="true" /><span>{title}</span></a>
               </li>
             ))}
           </ul>
           <ul className="tbar">
-            {trust.map(({ icon: Icon, text }, i) => (
+            {trust.map(({ text }, i) => (
               <li key={text} className="rise" style={{ '--d': `${680 + i * 80}ms` }}>
-                <Icon size={18} aria-hidden="true" /><span>{text}</span>
+                <i className="dot" aria-hidden="true" /><span>{text}</span>
               </li>
             ))}
           </ul>
@@ -434,8 +440,6 @@ function Story({ data: d, tint, flip, index }) {
 }
 
 function Reviews() {
-  const dev = import.meta.env.DEV // empty review slots are only drawn while developing
-  const items = reviews.length ? reviews.slice(0, 3) : dev ? [0, 1, 2].map((i) => ({ placeholder: true, key: i })) : []
   return (
     <section className="sec tint" id="reviews">
       <div className="wrap">
@@ -449,32 +453,88 @@ function Reviews() {
             </Reveal>
           ))}
         </div>
-        {items.length > 0 && (
-          <>
-            <h3 className="rev-title">Google Reviews</h3>
-            <div className="grid g3">
-              {items.map((r, i) => (
-                <Reveal key={r.key ?? r.name} delay={i * 90} className="card review">
-                  {r.placeholder ? (
-                    <div className="slot"><Quote size={32} aria-hidden="true" /><span>Add 3 genuine Google reviews in content.js</span></div>
-                  ) : (
-                    <>
-                      <Quote className="rev-q" size={30} aria-hidden="true" />
-                      <div className="stars" aria-label={`${r.rating || 5} out of 5 stars`}>
-                        {Array.from({ length: r.rating || 5 }).map((_, k) => <Star key={k} size={18} fill="currentColor" aria-hidden="true" />)}
-                      </div>
-                      <p>{r.text}</p>
-                      <div className="rev-by"><b>{r.name}</b>{r.date && <span>{r.date}</span>}</div>
-                    </>
-                  )}
-                </Reveal>
-              ))}
-            </div>
-          </>
-        )}
-        <Reveal delay={200} className="center-cta">
+      </div>
+    </section>
+  )
+}
+
+function ReviewCard({ r, dup }) {
+  const [open, setOpen] = useState(false)
+  const long = r.text.length > 210
+  return (
+    <article className="rv-card" aria-hidden={dup || undefined}>
+      <header className="rv-head">
+        <span className="rv-av" aria-hidden="true">{r.name.trim().charAt(0).toUpperCase()}</span>
+        <span className="rv-who"><b>{r.name}</b>{r.date && <small>{r.date}</small>}</span>
+        <Quote className="rv-q" size={34} aria-hidden="true" />
+      </header>
+      <div className="stars" aria-label={`${r.rating} out of 5 stars`}>
+        {Array.from({ length: r.rating }).map((_, k) => <Star key={k} size={18} fill="currentColor" aria-hidden="true" />)}
+      </div>
+      <p className={`rv-text ${open ? 'open' : ''}`}>{r.text}</p>
+      {long && <button type="button" className="rv-more" onClick={() => setOpen((o) => !o)} aria-expanded={open}>{open ? 'Show less' : 'Read more'}</button>}
+    </article>
+  )
+}
+
+function CustomerReviews() {
+  const track = useRef(null)
+  const paused = useRef(false)
+  const n = reviews.length
+
+  // The list is rendered twice; when the view passes the first copy it is silently
+  // moved back by exactly one copy, so the carousel loops 1-5-1-5 with no rewind.
+  const setWidth = (el) => (el.children[n] ? el.children[n].offsetLeft - el.children[0].offsetLeft : 0)
+  const jump = (el, delta) => {
+    el.style.scrollSnapType = 'none'
+    el.style.scrollBehavior = 'auto'
+    el.scrollLeft += delta
+    el.style.scrollBehavior = ''
+    requestAnimationFrame(() => { el.style.scrollSnapType = '' })
+  }
+  const normalise = (el) => {
+    const w = setWidth(el)
+    if (w && el.scrollLeft >= w) jump(el, -w)
+  }
+  const go = (dir) => {
+    const el = track.current
+    if (!el) return
+    const w = setWidth(el)
+    if (dir < 0 && el.scrollLeft < 4 && w) jump(el, w)
+    else normalise(el)
+    const step = el.children[1].offsetLeft - el.children[0].offsetLeft
+    el.scrollBy({ left: dir * step, behavior: 'smooth' })
+  }
+  useEffect(() => {
+    if (!n || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => {
+      const el = track.current
+      if (!el || paused.current) return
+      normalise(el)
+      const step = el.children[1].offsetLeft - el.children[0].offsetLeft
+      el.scrollBy({ left: step, behavior: 'smooth' })
+    }, 2000)
+    return () => clearInterval(id)
+    // eslint-disable-next-line
+  }, [])
+  if (!reviews.length) return null
+  const hold = (v) => () => { paused.current = v }
+  return (
+    <section className="sec" id="customer-reviews">
+      <div className="wrap">
+        <SectionHead center title="Google Reviews" />
+        <div className="rv" onMouseEnter={hold(true)} onMouseLeave={hold(false)} onFocus={hold(true)} onBlur={hold(false)} onTouchStart={hold(true)} onTouchEnd={() => setTimeout(hold(false), 4000)}>
+          <div className="rv-track" ref={track} tabIndex={0} aria-label="Customer reviews" onScroll={(e) => { const el = e.currentTarget; clearTimeout(el._t); el._t = setTimeout(() => normalise(el), 180) }}>
+            {[...reviews, ...reviews].map((r, i) => <ReviewCard key={`${r.name}-${i}`} r={r} dup={i >= n} />)}
+          </div>
+          <div className="rv-nav">
+            <button type="button" onClick={() => go(-1)} aria-label="Previous reviews"><ChevronDown size={20} style={{ transform: 'rotate(90deg)' }} /></button>
+            <button type="button" onClick={() => go(1)} aria-label="Next reviews"><ChevronDown size={20} style={{ transform: 'rotate(-90deg)' }} /></button>
+          </div>
+        </div>
+        <div className="center-cta">
           <Cta href={GOOGLE_REVIEWS_URL} target="_blank" rel="noreferrer" icon={Star}>View Google Reviews</Cta>
-        </Reveal>
+        </div>
       </div>
     </section>
   )
@@ -512,8 +572,8 @@ function Process() {
         <SectionHead center title="Book Your Skin Treatment Appointment" />
         <ol className="steps">
           {steps.map(({ icon: Icon, title, text }, i) => (
-            <Reveal as="li" key={title} delay={i * 110} className="step">
-              <span className="ic"><Icon size={24} aria-hidden="true" /></span>
+            <Reveal as="li" key={title} delay={i * 110} className="step flow">
+              <span className="flow-node"><Icon size={26} aria-hidden="true" /><em>{i + 1}</em></span>
               <h3>{title}</h3>
               <p>{text}</p>
             </Reveal>
@@ -638,6 +698,7 @@ export default function App() {
         <Reviews />
         <WhyUs />
         <Process />
+        <CustomerReviews />
         <Faq />
         <Final />
       </main>

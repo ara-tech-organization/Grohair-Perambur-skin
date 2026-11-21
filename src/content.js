@@ -130,9 +130,14 @@ export const stats = [
   { icon: BadgePercent, value: '0%', label: 'EMI Available', text: 'Flexible payment option for eligible treatments, subject to applicable terms.' },
 ]
 
-// Genuine Google Business Profile reviews only (3 to display), e.g.
-//   { name: 'Customer name', rating: 5, text: 'Original review text', date: 'March 2026' }
-export const reviews = []
+// Genuine Google Business Profile reviews (text as posted; star rating assumed 5, confirm on Google)
+export const reviews = [
+  { name: 'Geetha Neha', rating: 5, date: 'A month ago', text: 'I had a good experience at Advanced Gro Hair & Glo Skin Clinic. The staff were friendly, and the doctor explained the Gluta IV treatment process clearly. The clinic maintained a clean and comfortable environment. Overall, I was satisfied with the service and the professional approach.' },
+  { name: 'veera manikandan', rating: 5, date: '4 months ago', text: "Very good product! I've been using Glow Skin for a few weeks and can see a noticeable difference. My skin feels softer, smoother, and looks more radiant. It is easy to apply and gives a natural glow. Highly recommended" },
+  { name: 'Yuva Uva', rating: 5, date: '6 months ago', text: 'I went to Advance Grow Hair Perambur. I had some acne and acne scars on my skin. When I showed the doctor, they suggested a Peel and then Face PRP. So now my acne has reduced and they’ve started PRP. Good for the rest, it’s going well. Relatives are asking about it, saying my face looks good. Thank you Advance Grow Hair Perambur....' },
+  { name: 'Nandhakumar S S', rating: 5, date: '11 months ago', text: 'Iam Nandhakumar, taking PRP skin treatment in Grohair & Gloskin. Really Excellent and visible result I have seen in my face. Doctor and staffs are so polite and friendly in attending, caring. They given good offer for my treatment. Continuous followup on fixed date. Specific i have to mention that no need to wait to take treatment. In fixed time they will attend and finish the procedure. Doctors will suggest correct treatment with reasonable cost. Who are all want to groom yourself, I will strongly recommend this clinic. My score is 100 percent.' },
+  { name: 'Aysha Aysha', rating: 5, date: 'A year ago', text: "I came for consultation fory skin doctor took skin test and then diagnosed it's pigmentation so doctor suggested me to Q-switch laser 6session. Immediately I have started treatment now I'm completed 4session i can good changes in my face so I recommend Advanced Grohair Gloskin clinic Perambur." },
+]
 
 export const whyUs = [
   'Multiple aesthetic treatment options',
