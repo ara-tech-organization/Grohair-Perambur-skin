@@ -6,6 +6,9 @@ import {
   Info,
 } from 'lucide-react'
 import logo from './assets/logo.png'
+import slide1 from './assets/54.jpg'
+import slide2 from './assets/55.jpg'
+import slide3 from './assets/56.jpg'
 import {
   PHONE, PHONE_DISPLAY, EMAIL, ADDRESS_LINES, MAPS_URL, GOOGLE_REVIEWS_URL, nav, trust,
   treatmentOptions, treatments, treatmentSections, stats, whyUs, steps, faqs, reviews,
@@ -45,7 +48,7 @@ function Reveal({ as: Tag = 'div', delay = 0, className = '', children, ...rest 
 // Lead submission -> https://adgrohairperambur.com/api/email.php (emails the clinic and adds a sheet row)
 const LEAD_API = 'https://adgrohairperambur.com/api/email.php'
 const LEAD_SOURCES = {
-  'hero-form': 'Skin - Hero Form',
+  'book-form': 'Skin - Book Form',
   'popup-form': 'Skin - Popup Form',
   'final-form': 'Skin - Final Form',
 }
@@ -354,6 +357,82 @@ function Header() {
 }
 
 /* ---------- sections ---------- */
+/* ---------- hero image slider ---------- */
+const SLIDES = [
+  { src: slide1, alt: 'Before and after skin treatment result' },
+  { src: slide2, alt: 'Before and after treatment result' },
+  { src: slide3, alt: 'Before and after acne treatment result' },
+]
+
+function HeroSlider() {
+  const [i, setI] = useState(0)
+  const hold = useRef(false)
+  const n = SLIDES.length
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = setInterval(() => { if (!hold.current) setI((k) => (k + 1) % n) }, 3500)
+    return () => clearInterval(id)
+  }, [n])
+  return (
+    <div
+      className="deck rise" style={{ '--d': '250ms' }}
+      onMouseEnter={() => { hold.current = true }} onMouseLeave={() => { hold.current = false }}
+      role="region" aria-roledescription="carousel" aria-label="Treatment results"
+    >
+      <div className="deck-stage">
+        <span className="deck-c tl" /><span className="deck-c tr" /><span className="deck-c bl" /><span className="deck-c br" />
+        {SLIDES.map((sl, k) => {
+          const pos = (k - i + n) % n
+          return (
+            <figure key={k} className="deck-card" data-pos={pos} aria-hidden={pos !== 0}>
+              <img src={sl.src} alt={sl.alt} loading={k === 0 ? 'eager' : 'lazy'} />
+              <figcaption>Before / After</figcaption>
+            </figure>
+          )
+        })}
+      </div>
+      <div className="deck-dots">
+        {SLIDES.map((_, k) => (
+          <button type="button" key={k} className={k === i ? 'on' : ''} onClick={() => setI(k)} aria-label={`Show image ${k + 1}`} aria-current={k === i} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function BookSection() {
+  const points = ['Individual skin assessment', 'Treatment planning based on suitability', 'Guidance on procedures and aftercare']
+  return (
+    <section className="sec tint book" id="book">
+      <div className="wrap book-grid">
+        <Reveal className="book-copy">
+          <span className="book-tag"><Phone size={14} aria-hidden="true" />Free Consultation</span>
+          <h2>Get a Call Back From Our Perambur Skin Clinic</h2>
+          <p>Share your details and our team will contact you to coordinate your appointment.</p>
+          <ul className="book-points">
+            {points.map((t) => (
+              <li key={t}><span><Check size={16} aria-hidden="true" /></span>{t}</li>
+            ))}
+          </ul>
+          <div className="book-contact">
+            <a href={`tel:${PHONE}`}>
+              <span className="bc-ic"><Phone size={20} aria-hidden="true" /></span>
+              <span className="bc-tx"><small>Call Us</small><b>{PHONE_DISPLAY}</b></span>
+            </a>
+            <a href={MAPS_URL} target="_blank" rel="noreferrer" data-direct>
+              <span className="bc-ic"><MapPin size={20} aria-hidden="true" /></span>
+              <span className="bc-tx"><small>Visit Us</small><b>{ADDRESS_LINES.join(' ')}</b></span>
+            </a>
+          </div>
+        </Reveal>
+        <Reveal delay={120} className="book-card">
+          <LeadForm id="book-form" heading="Book Your Appointment" button="BOOK APPOINTMENT" optionalDate={false} />
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
 function Hero() {
   return (
     <section className="hero" id="top">
@@ -390,9 +469,7 @@ function Hero() {
             <Cta href="#book">Book Your Consultation</Cta>
           </div>
         </div>
-        <div className="hero-form rise" style={{ '--d': '250ms' }} id="book">
-          <LeadForm id="hero-form" heading="Book Your Appointment" button="BOOK APPOINTMENT" optionalDate={false} />
-        </div>
+        <HeroSlider />
       </div>
     </section>
   )
@@ -843,6 +920,7 @@ export default function App() {
       <Header />
       <main>
         <Hero />
+        <BookSection />
         <Treatments />
         {treatmentSections.map((t, i) => <Story key={t.id} data={t} index={i} tint={i % 2 === 0} flip={i % 2 === 1} />)}
         <Reviews />
